@@ -14,6 +14,9 @@ import org.springframework.web.servlet.DispatcherServlet;
  */
 public class Initializer implements WebApplicationInitializer {
 
+    private static final String DISPATCHER_SERVLET_NAME = "dispatcher";
+    private static final String DISPATCHER_SERVLET_MAPPING = "/";
+
     public void onStartup(ServletContext servletContext)
             throws ServletException {
 
@@ -23,8 +26,8 @@ public class Initializer implements WebApplicationInitializer {
 
         ctx.setServletContext(servletContext);
 
-        Dynamic servlet = servletContext.addServlet("dispatcher", new DispatcherServlet(ctx));
-        servlet.addMapping("/");
+        Dynamic servlet = servletContext.addServlet(DISPATCHER_SERVLET_NAME, new DispatcherServlet(ctx));
+        servlet.addMapping(DISPATCHER_SERVLET_MAPPING);
         servlet.setLoadOnStartup(1);
     }
 

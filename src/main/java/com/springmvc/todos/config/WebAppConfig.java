@@ -1,22 +1,24 @@
 package com.springmvc.todos.config;
 
-import java.util.Properties;
-
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-
+import org.hibernate.ejb.HibernatePersistence;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.orm.hibernate4.HibernateTransactionManager;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.view.JstlView;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
+
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+import java.util.Properties;
 
 /**
  * Created by novy on 31.10.14.
@@ -25,6 +27,7 @@ import org.springframework.web.servlet.view.UrlBasedViewResolver;
 @ComponentScan("com.springmvc.todos")
 @EnableWebMvc
 @EnableTransactionManagement
+@EnableJpaRepositories("com.springmvc.todos.persistence")
 @PropertySource("classpath:application.properties")
 public class WebAppConfig {
     private static final String DATABASE_DRIVER = "database.driver";
@@ -56,14 +59,15 @@ public class WebAppConfig {
     }
 
     @Bean
-    public LocalSessionFactoryBean sessionFactory() {
-        LocalSessionFactoryBean sessionFactoryBean = new LocalSessionFactoryBean();
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+        LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+        entityManagerFactoryBean.setDataSource(dataSource());
+        entityManagerFactoryBean.setPersistenceProviderClass(HibernatePersistence.class);
+        entityManagerFactoryBean.setPackagesToScan(environment.getProperty(ENTITY_MANAGER_PACKAGES_TO_SCAN));
 
-        sessionFactoryBean.setDataSource(dataSource());
-        sessionFactoryBean.setPackagesToScan(environment.getRequiredProperty(ENTITY_MANAGER_PACKAGES_TO_SCAN));
-        sessionFactoryBean.setHibernateProperties(hibernateProperties());
+        entityManagerFactoryBean.setJpaProperties(hibernateProperties());
 
-        return sessionFactoryBean;
+        return entityManagerFactoryBean;
     }
 
     public Properties hibernateProperties() {
@@ -77,15 +81,14 @@ public class WebAppConfig {
     }
 
     @Bean
-    public HibernateTransactionManager transactionManager() {
-        HibernateTransactionManager transactionManager = new HibernateTransactionManager();
-
-        transactionManager.setSessionFactory(sessionFactory().getObject());
+    public JpaTransactionManager transactionManager() {
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(entityManagerFactory().getObject());
         return transactionManager;
     }
 
     @Bean
-    UrlBasedViewResolver viewResolver() {
+    public ViewResolver viewResolver() {
         UrlBasedViewResolver viewResolver = new UrlBasedViewResolver();
 
         viewResolver.setPrefix(URL_RESOLVER_PREFIX);
