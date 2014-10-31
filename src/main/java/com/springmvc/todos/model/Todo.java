@@ -1,11 +1,16 @@
 package com.springmvc.todos.model;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
 /**
  * Created by novy on 31.10.14.
  */
 @Entity
+@Data
+@NoArgsConstructor
 public class Todo {
 
     public static enum Status {

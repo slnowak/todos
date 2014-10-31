@@ -1,4 +1,4 @@
-package com.springmvc.todos;
+package com.springmvc.todos.controllers;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
