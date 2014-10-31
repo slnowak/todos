@@ -7,6 +7,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import static com.springmvc.todos.persistence.TodoSpecification.*;
+
 /**
  * Created by novy on 31.10.14.
  */
@@ -20,8 +22,13 @@ public class TodoController {
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String listTodos(Model model) {
-        model.addAttribute(
-                "todos", todoService.findAll()
+
+        model.addAttribute("todos",
+                todoService.findAll(
+                    withDescriptionContaining("todo")
+                    .and(withActiveStatus())
+                    .and(withHighPriority())
+                )
         );
 
         return "todos";
